@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map of Nepal by Kapil Bhattarai</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
+        h1, h2 { color: #333; }
+        img { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-4 mb-4">Map of Nepal by Kapil</h1>
+        
+        <form method="POST" class="mb-4">
+            <div class="form-group">
+                <label for="district">Select a district:</label>
+                <select name="district" id="district" class="form-control" onchange="this.form.submit()">
+                    <option value="">-- Select a district --</option>
+                    {% for district in districts %}
+                    <option value="{{ district }}" {% if district == selected_district %}selected{% endif %}>{{ district }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            {% if gapa_napas %}
+            <div class="form-group">
+                <label>Select GaPa_NaPa (you can select multiple):</label>
+                <div style="max-height: 200px; overflow-y: auto;">
+                    {% for gapa_napa in gapa_napas %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="gapa_napa" value="{{ gapa_napa }}" id="gapa_napa_{{ loop.index }}" {% if gapa_napa in selected_gapa_napas %}checked{% endif %}>
+                        <label class="form-check-label" for="gapa_napa_{{ loop.index }}">
+                            {{ gapa_napa }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <button type="submit" class="btn btn-primary">Update Map</button>
+        </form>
+        
+        {% if district_map %}
+        <h2 class="mt-4 mb-3">District Map</h2>
+        <img src="data:image/png;base64,{{ district_map }}" alt="Map of Nepal Districts" class="img-fluid mb-4">
+        {% endif %}
+        
+        {% if gapa_napa_map %}
+        <h2 class="mt-4 mb-3">Gau Palika_Nagar Palika</h2>
+        <img src="data:image/png;base64,{{ gapa_napa_map }}" alt="Map of District with Gaupalika and Nagarpalika" class="img-fluid mb-4">
+        {% endif %}
+        
+        {% if selected_district %}
+        <p>Selected district: {{ selected_district }}</p>
+        {% endif %}
+        
+        {% if selected_gapa_napas %}
+        <p>Selected GaPa_NaPa: {{ selected_gapa_napas|join(', ') }}</p>
+        {% endif %}
+    </div>
+    {% if district_map %}
+        <a href="{{ url_for('download_district_map', district=selected_district) }}" class="btn btn-primary">Download District Map</a>
+    {% endif %}
+
+    {% if gapa_napa_map %}
+        <a href="{{ url_for('download_gapa_napa_map', district=selected_district, gapa_napa=selected_gapa_napas) }}" class="btn btn-primary">Download GaPa/NaPa Map</a>
+    {% endif %}
+</body>
+</html>
